@@ -25,28 +25,47 @@ class PageBreakingFormatter extends BaseFormatter
     
     public function format(Node $node, Document $document)
     {
-        $columnFormatter = new ColumnBreakingFormatter();
 
-        $this->node = $node;
-        $this->totalVerticalTranslation = 0;
+        if ($node->getAttribute('auto-break') == "false") {
 
-        $children = $this->node->getChildren();
-        foreach($this->node->getChildren() as $child)
-        {
-            $child->translate(0, -$this->totalVerticalTranslation);
-            if(!$node->isMarkedAsFormatted($child) && $child instanceof ColumnableContainer)
-            {
-                $columnFormatter->format($child, $document);   
+            $this->totalVerticalTranslation = 0;
+
+            foreach($node->getChildren() as $child) {
+
+                if ($child->getAttribute('break') == true) {
+                    $node->createNextPage();
+                } else {
+                    $node->getCurrentPage()->add($child);
+                }
+
+            }
+
+        } else {
+
+            $columnFormatter = new ColumnBreakingFormatter();
     
-                $verticalTranslation = $columnFormatter->getLastVerticalTranslation();
-            }
-            else
+            $this->node = $node;
+            $this->totalVerticalTranslation = 0;
+
+            $children = $this->node->getChildren();
+            foreach($this->node->getChildren() as $child)
             {
-                $verticalTranslation = 0;
+                $child->translate(0, -$this->totalVerticalTranslation);
+                if(!$node->isMarkedAsFormatted($child) && $child instanceof ColumnableContainer)
+                {
+                    $columnFormatter->format($child, $document);   
+        
+                    $verticalTranslation = $columnFormatter->getLastVerticalTranslation();
+                }
+                else
+                {
+                    $verticalTranslation = 0;
+                }
+    
+                $this->breakChildIfNecessary($child);            
+                $this->totalVerticalTranslation += -$verticalTranslation;
             }
 
-            $this->breakChildIfNecessary($child);            
-            $this->totalVerticalTranslation += -$verticalTranslation;
         }
         
         foreach($node->getPages() as $page)
