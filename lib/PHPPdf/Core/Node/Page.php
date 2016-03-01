@@ -115,6 +115,7 @@ class Page extends Container
         static::addAttribute('text-decoration', self::TEXT_DECORATION_NONE);
         static::addAttribute('alpha', 1);
         static::addAttribute('document-template');
+        static::addAttribute('auto-break', true);
     }
 
     public function initialize()
