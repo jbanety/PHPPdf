@@ -26,9 +26,7 @@ class PageBreakingFormatter extends BaseFormatter
     public function format(Node $node, Document $document)
     {
 
-        if ($node->getAttribute('auto-break') == "false") {
-
-            $this->totalVerticalTranslation = 0;
+        if ($node->getAttribute('auto-break') === "false") {
 
             foreach($node->getChildren() as $child) {
 
